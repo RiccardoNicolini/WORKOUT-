@@ -2,7 +2,7 @@ package org.example.workout2;
 
 public interface WeightCalculationStrategy {
 
-    double adjustWeight(double baseWeight);
+    double adjustWeight(double baseWeight, User user);
 
     int calculateRepetitions();
 

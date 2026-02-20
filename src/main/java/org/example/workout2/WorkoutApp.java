@@ -31,6 +31,10 @@ public class WorkoutApp extends Application {
         VBox layout = new VBox(10);
         layout.setPadding(new Insets(20));
 
+        ComboBox<Integer> freqCombo = new ComboBox<>();
+        freqCombo.getItems().addAll(1, 2, 3, 4);
+        freqCombo.setValue(3);
+
         Label titolo = new Label("Configurazione Utente");
         titolo.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
@@ -52,6 +56,7 @@ public class WorkoutApp extends Application {
         Button generaBtn = new Button("Genera Piano");
         generaBtn.setStyle("-fx-background-color: #3498db; -fx-text-fill: white;");
 
+
         generaBtn.setOnAction(e -> {
             try {
                 double peso = Double.parseDouble(pesoInput.getText());
@@ -64,7 +69,7 @@ public class WorkoutApp extends Application {
                 }
 
                 // Creazione utente
-                User user = new User(sessoScelto, peso, altezza, livelloCombo.getValue(), 3);
+                User user = new User(sessoScelto, peso, altezza, livelloCombo.getValue(), freqCombo.getValue());
                 generaPianoWorkout(user);
                 creaSchermataWorkout();
                 window.setScene(planScene);
@@ -72,13 +77,29 @@ public class WorkoutApp extends Application {
             } catch (NumberFormatException ex) {
                 mostraAlert("Errore", "Inserisci numeri validi per peso e altezza.");
             }
+
+
         });
 
-        layout.getChildren().addAll(titolo, new Label("Sesso:"), sessoCombo,
+
+
+
+        layout.getChildren().addAll(
+                titolo,
+                new Label("Sesso:"), sessoCombo,
+                new Label("Frequenza (giorni):"), freqCombo,
                 new Label("Peso (kg):"), pesoInput, new Label("Altezza (cm):"), altezzaInput,
-                new Label("Livello:"), livelloCombo, generaBtn);
+                new Label("Livello:"), livelloCombo, generaBtn
+
+        );
+
 
         loginScene = new Scene(layout, 350, 480);
+    }
+
+    private void addLegsToWorkout(Workout w, User u, WeightCalculationStrategy s) {
+        w.addExercise(new FundamentalExercise("Squat", 1.2));
+        w.getExercises().get(w.getExercises().size()-1).generateParameters(u, s);
     }
 
     private void generaPianoWorkout(User user) {
@@ -90,9 +111,28 @@ public class WorkoutApp extends Application {
         };
 
         // Generazione allenamenti tramite Factory
-        plan.addWorkout(WorkoutFactory.createWorkout(WorkoutType.PULL, user, strategy));
-        plan.addWorkout(WorkoutFactory.createWorkout(WorkoutType.LEGS, user, strategy));
-        plan.addWorkout(WorkoutFactory.createWorkout(WorkoutType.PUSH, user, strategy));
+        int freq = user.getWeeklyFrequency();
+        if (freq == 1) {
+            plan.addWorkout(WorkoutFactory.createWorkout(WorkoutType.FULL_BODY, user, strategy));
+        } else if (freq == 2) {
+            // Tirata-Gambe e Spinta-Gambe
+            Workout d1 = WorkoutFactory.createWorkout(WorkoutType.PULL, user, strategy);
+            addLegsToWorkout(d1, user, strategy);
+            plan.addWorkout(d1);
+
+            Workout d2 = WorkoutFactory.createWorkout(WorkoutType.PUSH, user, strategy);
+            addLegsToWorkout(d2, user, strategy);
+            plan.addWorkout(d2);
+        } else if (freq == 3) {
+            plan.addWorkout(WorkoutFactory.createWorkout(WorkoutType.PULL, user, strategy));
+            plan.addWorkout(WorkoutFactory.createWorkout(WorkoutType.LEGS, user, strategy));
+            plan.addWorkout(WorkoutFactory.createWorkout(WorkoutType.PUSH, user, strategy));
+        } else { // 4 o più
+            plan.addWorkout(WorkoutFactory.createWorkout(WorkoutType.PULL, user, strategy));
+            plan.addWorkout(WorkoutFactory.createWorkout(WorkoutType.LEGS, user, strategy));
+            plan.addWorkout(WorkoutFactory.createWorkout(WorkoutType.PUSH, user, strategy));
+            plan.addWorkout(WorkoutFactory.createWorkout(WorkoutType.CARDIO, user, strategy));
+        }
     }
 
     private void creaSchermataWorkout() {

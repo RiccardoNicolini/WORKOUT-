@@ -13,11 +13,9 @@ public class FundamentalExercise extends Exercise {
     }
 
     @Override
-    protected double calculateWeight(User user,
-                                     WeightCalculationStrategy strategy) {
-
+    protected double calculateWeight(User user, WeightCalculationStrategy strategy) {
         double base = user.getWeight() * bodyweightMultiplier;
 
-        return strategy.adjustWeight(base);
+        return strategy.adjustWeight(base, user);
     }
 }
