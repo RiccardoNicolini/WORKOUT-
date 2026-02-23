@@ -110,28 +110,31 @@ public class WorkoutApp extends Application {
             default -> new IntermediateStrategy();
         };
 
-        // Generazione allenamenti tramite Factory
         int freq = user.getWeeklyFrequency();
+        WorkoutFactory factory;
+
         if (freq == 1) {
-            plan.addWorkout(WorkoutFactory.createWorkout(WorkoutType.FULL_BODY, user, strategy));
+            factory = new FullBodyWorkoutFactory();
+            plan.addWorkout(factory.createWorkout(user, strategy));
         } else if (freq == 2) {
-            // Tirata-Gambe e Spinta-Gambe
-            Workout d1 = WorkoutFactory.createWorkout(WorkoutType.PULL, user, strategy);
+            factory = new PullWorkoutFactory();
+            Workout d1 = factory.createWorkout(user, strategy);
             addLegsToWorkout(d1, user, strategy);
             plan.addWorkout(d1);
 
-            Workout d2 = WorkoutFactory.createWorkout(WorkoutType.PUSH, user, strategy);
+            factory = new PushWorkoutFactory();
+            Workout d2 = factory.createWorkout(user, strategy);
             addLegsToWorkout(d2, user, strategy);
             plan.addWorkout(d2);
         } else if (freq == 3) {
-            plan.addWorkout(WorkoutFactory.createWorkout(WorkoutType.PULL, user, strategy));
-            plan.addWorkout(WorkoutFactory.createWorkout(WorkoutType.LEGS, user, strategy));
-            plan.addWorkout(WorkoutFactory.createWorkout(WorkoutType.PUSH, user, strategy));
+            plan.addWorkout(new PullWorkoutFactory().createWorkout(user, strategy));
+            plan.addWorkout(new LegsWorkoutFactory().createWorkout(user, strategy));
+            plan.addWorkout(new PushWorkoutFactory().createWorkout(user, strategy));
         } else { // 4 o più
-            plan.addWorkout(WorkoutFactory.createWorkout(WorkoutType.PULL, user, strategy));
-            plan.addWorkout(WorkoutFactory.createWorkout(WorkoutType.LEGS, user, strategy));
-            plan.addWorkout(WorkoutFactory.createWorkout(WorkoutType.PUSH, user, strategy));
-            plan.addWorkout(WorkoutFactory.createWorkout(WorkoutType.CARDIO, user, strategy));
+            plan.addWorkout(new PullWorkoutFactory().createWorkout(user, strategy));
+            plan.addWorkout(new LegsWorkoutFactory().createWorkout(user, strategy));
+            plan.addWorkout(new PushWorkoutFactory().createWorkout(user, strategy));
+            plan.addWorkout(new CardioWorkoutFactory().createWorkout(user, strategy));
         }
     }
 
